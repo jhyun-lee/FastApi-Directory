@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+
+<!------------------------- 디렉토리 관리페이지  ---------------->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>디렉토리 페이지</title>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js"></script>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    
+
+    <!-- Font Awesome  >>>> 아이콘 사용 -->
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css"
+  />
+
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+
+  <link href="{{ url_for('static', path='/style.css') }}" rel="stylesheet">
+
+    <style>
+        .UserContainer {
+        display: flex; /* 자식 컨테이너를 Flex 컨테이너로 설정 */
+        align-items: center; /* 자식 요소를 수직 가운데 정렬 */
+        }
+
+        #User,
+        #logout {
+        margin-right: 30px; /* 요소들 사이의 간격을 설정 */
+        }
+
+
+        ul[role="tree"] {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        font-size: 120%;
+        }
+
+        ul[role="tree"] li {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        }
+
+        [role="treeitem"][aria-expanded="false"] + [role="group"] {
+        display: none;
+        }
+
+        [role="treeitem"][aria-expanded="true"] + [role="group"] {
+        display: block;
+        }
+
+        [role="treeitem"].doc::before {
+        font-family: "Font Awesome 5 Free";
+        content: "\f15c";
+        display: inline-block;
+        padding-right: 2px;
+        padding-left: 5px;
+        vertical-align: middle;
+        }
+
+
+        [role="treeitem"].img::before {
+        font-family: "Font Awesome 5 Free";
+        content: "\f03e";
+        display: inline-block;
+        padding-right: 2px;
+        padding-left: 5px;
+        vertical-align: middle;
+        }
+
+        [role="treeitem"].vid::before {
+        font-family: "Font Awesome 5 Free";
+        content: "\f03e";
+        display: inline-block;
+        padding-right: 2px;
+        padding-left: 5px;
+        vertical-align: middle;
+        }
+
+
+        
+        [role="treeitem"].zip::before {
+        font-family: "Font Awesome 5 Free";
+        content: "\f1c6";
+        display: inline-block;
+        padding-right: 2px;
+        padding-left: 5px;
+        vertical-align: middle;
+        }
+        
+       
+        
+        
+
+        [role="treeitem"][aria-expanded="false"] > ul {
+        display: none;
+        }
+
+        [role="treeitem"][aria-expanded="true"] > ul {
+        display: block;
+        }
+
+        [role="treeitem"][aria-expanded="false"] > span::before {
+        font-size: 25px;
+        font-family: "Font Awesome 5 Free";
+        content: "\f07b";
+        display: inline-block;
+        padding-right: 3px;
+        vertical-align: middle;
+        font-weight: 3000;
+        }
+
+        [role="treeitem"][aria-expanded="true"] > span::before {
+        font-size: 25px;
+        font-family: "Font Awesome 5 Free";
+        content: "\f07c";
+        display: inline-block;
+        padding-right: 3px;
+        vertical-align: middle;
+        font-weight: 900;
+        }
+
+        [role="treeitem"],
+        [role="treeitem"] span {
+        width: 50em;
+        margin: 0;
+        padding: 0.125em;
+        display: block;
+        }
+
+        /* disable default keyboard focus styling for treeitems
+        Keyboard focus is styled with the following CSS */
+        [role="treeitem"]:focus {
+        outline: 0;
+        }
+
+        [role="treeitem"][aria-selected="true"] {
+        padding-left: 4px;
+        border-left: 5px solid #005a9c;
+        }
+
+        [role="treeitem"].focus,
+        [role="treeitem"] span.focus {
+        border-color: black;
+        background-color: #eee;
+        }
+
+        [role="treeitem"].hover,
+        [role="treeitem"] span:hover {
+        padding-left: 4px;
+        background-color: #ddd;
+        border-left: 5px solid #333;
+        }
+
+        .dir-container {
+            display: flex;
+            margin-left: 20%;
+            margin-right: 20%;
+            align-items: center; /* 세로 가운데 정렬 */
+            border: 2px solid black; /* 테두리 스타일 및 색상 설정 */
+            padding: 20px; /* 테두리와 내용 사이의 간격 설정 */
+        }
+
+        .dir-container_2 {
+            margin-left: 2%;
+            
+            width: 3000px; /* 원하는 너비로 조절 */
+            height: 500px; /* 원하는 높이로 조절 */
+
+            overflow: auto; /* 스크롤바를 표시할 수 있도록 설정 */
+            border: 1px solid #ccc; /* 테두리 추가 (선택 사항) */
+            padding: 10px; /* 안쪽 여백 추가 (선택 사항) */
+        }
+
+
+        .Button_Container{
+            display: flex;
+            justify-content: center; /* 가로 가운데 정렬 */
+            align-items: center; /* 세로 가운데 정렬 */
+
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+
+
+<body>
+
+
+
+<h1>디렉토리 GUI</h1>
+    <h2>- - -</h2>
+    <p>
+        <label>선택한 파일 <input id="last_action_link" type="text" size="50" readonly="" ></label>
+        <p>
+            <label style="margin-left: 0px;">파일 / 폴더 <input id="last_action_sort" type="text" size="15" readonly=""></label>
+            <label style="margin-left: 30px;">현재 디렉토리의 데이터수 <input id="last_action_data_Count"  type="text" size="5" readonly=""></label>
+        </p>
+        
+    </p>
+    
+
+    <div class="Button_Container">
+        <button id="Upload" style="width: 100px;">업로드</button>
+        <button id="Download"style="width: 100px;">다운로드</button>
+        <button id="Remove"style="width: 100px;">삭제</button>
+        <button id="Preview"style="width: 100px;">미리보기</button>
+        
+        <button id="mkdir"style="margin-left : 5%;  width: auto;">디렉토리 생성</button>
+        <button id="unzip"style="width: 100px;">압축 해제</button>
+        <button id="zip"style="width: 100px;">압축</button>
+    </div>
+    
+    <div class="dir-container">
+        <p>Dir</p>
+        <div class="dir-container_2">
+            <ul role="tree" aria-labelledby="tree_label">
+                <li id="rootLi" role="treeitem" aria-expanded="false" aria-selected="false" aria-label="root,Dir">
+                    <span id="ShareFolder"> ShareFolder </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="rectangle"></div>
+   
+    <div class="background">
+        <div class="window">
+            <div class="popup" style="min-width: 500px; width: auto;">
+                <div class="rectangle"></div>
+                <div id="uploadFile_popup">
+                    <div class="form-group">
+                        <h1 style="margin-bottom: 50px; font-weight:bold;  font-size: 30px;">Upload</h1> 
+                        <h3 style="margin-bottom: 50px;">파일을 선택해 주세요</h3>
+                        <input type="file" name="file" id="file-input" style="margin-bottom: 50px; " >
+                    </div>
+        
+                    <div class="button-container" id="yesOrno">
+                        <button id="Upload_yes" style="width: 100px;">업로드</button>
+                        <button id="Upload_no" style="width: 100px;">취소</button>
+                    </div>
+                </div>
+
+                <div id="Del_popup">
+                    <h1 style="margin-bottom: 50px; font-weight:bold; font-size: 30px;">Delete</h1>
+                    <h3 style="margin-bottom: 20px;" id="DelName">이걸</h3>
+                    <h3 style="margin-bottom: 50px;">정말 삭제하시겠습니까?</h3>
+        
+                    <div class="button-container" id="yesOrno">
+                        <button id="Del_yes" style="width: 100px;">삭제</button>
+                        <button id="Del_no" style="width: 100px;">취소</button>
+                    </div>
+                </div>
+
+
+                <div id="Mkdir_popup">
+                    <h1 style="margin-bottom: 50px; font-weight:bold; font-size: 30px;">Make dir</h1>
+                    <div class="dropdown-container" style="margin-bottom: 30px; font-size: 20px;">이름을 입력해주세요
+    
+                        <input type="text" id="DirNametxt" style="margin-bottom: 5%; width:400px; font-size: 20px;" placeholder="이름"><br>
+                    </div>
+
+                    <button id="DirCreate">Create</button>
+                    <button id="DirNo">No</button>
+                </div>
+
+                <div id="error_popup">
+                    <h1 style="margin-bottom: 30px; font-weight:bold; font-size: 30px;">Error</h1>
+                    <h3 style="margin-bottom: 50px;" id="errorText">에러 텍스트</h3>
+        
+                    <div class="button-container" id="yesOrno">
+                        <button id="return" style="width: 100px;">Done</button>
+                    </div>
+                </div>
+
+
+                <div id="Pre_popup">
+                    <h1 style="margin-bottom: 30px; font-weight:bold; font-size: 30px;">Preview</h1>
+
+                    <div style="margin-bottom: 10px;">
+                        <img src="/static/sample.jpg" alt="Example Image" id="image" style="width: 400px;"> 
+                    </div>
+        
+                    <div class="button-container" id="yesOrno">
+                        <button id="return_Pre" style="width: 100px;">Done</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <script>
+        window.image_format_List = ['jpg', 'jp4g','png','PNG'];  // 기본 적인 파일들
+        window.video_format_List = ['mp4','mov','mkv','avi','flv','ts','MP4', 'MOV', 'MKV', 'AVI', 'FLV', 'TS' ];
+        zip_format_List= ['zip','ZIP']
+
+        
+        ///////////////// 주요 버튼
+        const UploadButton=document.getElementById('Upload');
+        const DownloadButton=document.getElementById('Download');
+        const RemoveButton=document.getElementById('Remove');
+        const PreviewButton=document.getElementById('Preview');
+        
+
+
+        const mkdirButton=document.getElementById('mkdir');
+        const unzipButton=document.getElementById('unzip');
+        const zipButton=document.getElementById('zip');
+        
+
+        
+        //////////////// 팝업창
+        const uploadFilePopup = document.getElementById('uploadFile_popup');
+        const errorPopup = document.getElementById('error_popup');
+        const DelPopup = document.getElementById('Del_popup');
+        const Pre_popup = document.getElementById('Pre_popup');
+        const Mkdirpopup = document.getElementById('Mkdir_popup');
+        
+        
+        //////////////// 업로드
+        const Upload_no = document.getElementById('Upload_no');
+        const Upload_yes = document.getElementById('Upload_yes');
+
+
+        // 이미지
+        const imageElement = document.getElementById('image');
+
+
+        ////////////////삭제
+        const Del_no = document.getElementById('Del_no');
+        const Del_yes = document.getElementById('Del_yes');
+
+        
+        // 디렉토리 생성
+        const mkdiryes=document.getElementById('DirCreate')
+        const mkdirno=document.getElementById('DirNo')
+
+
+        //에러
+        const return_button = document.getElementById('return');
+        const return_Pre = document.getElementById("return_Pre")
+
+        //에러 텍스트
+        const errorText = document.getElementById('errorText');
+        
+        
+        function close() {// 팝업 닫기
+            document.querySelector(".background").className = "background";
+        }
+    
+        UploadButton.addEventListener('click', uploadFile_popup);// 파일 선택 팝업창
+        Upload_no.addEventListener('click', close);
+        Del_no.addEventListener('click', close);
+        return_button.addEventListener('click', close);
+        return_Pre.addEventListener('click',close);
+        mkdirno.addEventListener("click",close);
+
+
+        // 디렉토리 생성 팝업
+        mkdirButton.addEventListener("click", async () => {
+            const Dir=document.getElementById('last_action_sort');
+            const DirValue = Dir.value;
+
+            if(DirValue!="Dir"){ // 에러
+
+                errorText.textContent="디렉토리를 선택해 주세요"
+                uploadFilePopup.style.display = 'none';
+                errorPopup.style.display = 'block';
+                DelPopup.style.display = 'none';
+                Mkdirpopup.style.display='none';
+                Pre_popup.style.display='none';
+
+                document.querySelector(".background").className = "background show";
+            }
+            else{
+                
+                uploadFilePopup.style.display = 'none';
+                errorPopup.style.display = 'none';
+                DelPopup.style.display = 'none';
+                Mkdirpopup.style.display='block'
+                Pre_popup.style.display='none';
+
+                document.querySelector(".background").className = "background show";
+            }
+        });
+
+        // 디렉토리 생성
+        mkdiryes.addEventListener("click", async () => {
+            startRotation()
+
+            const Dir=document.getElementById('last_action_link');
+            let savepath = Dir.value;
+
+            const nametxt=document.getElementById('DirNametxt')
+
+            if(savepath=="root"){
+                savepath='/ShareFolder'
+            }
+
+            file_path='./static' + savepath +'/'+ nametxt.value
+
+            await fetch(`/dir/mkdir?directory_path=${encodeURIComponent(file_path)}`,{ method: 'POST' })
+            
+            stopRotation()
+            location.reload(); // 리로드
+        })
+
+
+        // 압축해제
+        unzipButton.addEventListener("click",async()=>{
+            let link=document.getElementById('last_action_link');
+            
+            if(!(link.value.includes(".zip"))){ // 에러 
+                errorText.textContent="압축파일을 선택해 주세요"
+                uploadFilePopup.style.display = 'none';
+                errorPopup.style.display = 'block';
+                DelPopup.style.display = 'none';
+                Mkdirpopup.style.display='none'
+                Pre_popup.style.display='none';
+
+                document.querySelector(".background").className = "background show";
+            }
+            else{
+
+                startRotation()
+
+                const Dir=document.getElementById('last_action_link');
+                const savepath = Dir.value;
+
+
+                file_path='./static' + savepath  // 기본위치 + 디렉토리
+
+                
+                await fetch(`/dir/Unzip?file_path=${encodeURIComponent(file_path)}`, { method: 'POST' });
+
+                stopRotation()
+                location.reload(); // 리로드
+            }
+        })
+        
+
+        //파일 & 폴더 압축하기
+        zipButton.addEventListener("click",async()=>{
+
+
+            const Dir=document.getElementById('last_action_link');
+            const savepath = Dir.value;
+
+            let Sort=document.getElementById('last_action_sort');
+            Sort=Sort.value;
+
+            console.log(savepath.split('.').reverse()[0])
+            if(savepath == 'root' ||  savepath.split('.').reverse()[0]=='zip' || savepath.split('.').reverse()[0]=='ZIP'){ // 루트파일은 압축 x
+
+                errorText.textContent="루트 파일과 zip파일은 압축하지 못합니다."
+                uploadFilePopup.style.display = 'none';
+                errorPopup.style.display = 'block';
+                DelPopup.style.display = 'none';
+                Mkdirpopup.style.display='none'
+                Pre_popup.style.display='none';
+
+                document.querySelector(".background").className = "background show";
+            }
+            else{ 
+                
+                startRotation()
+
+                const Dir=document.getElementById('last_action_link');
+                const savepath = Dir.value;
+
+
+                file_path='./static' + savepath  // 기본위치 + 디렉토리
+
+                if(Sort=='File'){
+                    await fetch(`/dir/zip?directory_path=${encodeURIComponent(file_path)}&sort=${encodeURIComponent(0)}`, { method: 'POST' });
+                }
+                else{
+                    await fetch(`/dir/zip?directory_path=${encodeURIComponent(file_path)}&sort=${encodeURIComponent(1)}`, { method: 'POST' });
+                }
+                
+
+                stopRotation()
+                location.reload(); // 리로드
+                
+            }
+        })
+
+
+
+        function uploadFile_popup() {//업로드 팝업
+            const Dir=document.getElementById('last_action_sort');
+            const DirValue = Dir.value;
+
+            if(DirValue!="Dir"){ // 에러
+
+                errorText.textContent="디렉토리를 선택해 주세요"
+                uploadFilePopup.style.display = 'none';
+                errorPopup.style.display = 'block';
+                DelPopup.style.display = 'none';
+                Mkdirpopup.style.display='none'
+                Pre_popup.style.display='none';
+
+                document.querySelector(".background").className = "background show";
+            }
+            else{
+                
+                uploadFilePopup.style.display = 'block';
+                errorPopup.style.display = 'none';
+                DelPopup.style.display = 'none';
+                Mkdirpopup.style.display='none'
+                Pre_popup.style.display='none';
+
+                document.querySelector(".background").className = "background show";
+            }
+        }
+
+        Upload_yes.addEventListener("click", async () => {// 업로드 실행 버튼
+            event.preventDefault()
+            
+            const Dir=document.getElementById('last_action_link');  // 업로드할 디렉토리 주소
+            let savepath = Dir.value;
+
+
+
+            if(savepath=="root"){
+                savepath='./static/ShareFolder'
+            }
+            else{
+                savepath='./static'+savepath
+            }
+            
+            console.log(savepath)
+
+            const fileInput = document.getElementById("file-input");
+            const file = fileInput.files[0];
+            
+
+            startRotation()
+
+            if (file) {
+                const formData = new FormData();
+                formData.append("file", file);
+
+                try {
+                    await fetch(`/upload_file?savepath=${encodeURIComponent(savepath)}`, {
+                        method: "POST",
+                        body: formData,  // 파일을 요청 본문에 포함
+                    });
+                    console.log("파일이 성공적으로 업로드되었습니다!");
+                    document.querySelector(".background").className = "background";
+
+                } catch (error) {
+                    console.error("파일 업로드 중 오류 발생:", error);
+                }
+            }
+
+            stopRotation()
+            location.reload(); // 리로드
+            
+        });
+
+        DownloadButton.addEventListener('click', async () => { // 다운로드 팝업
+
+            let Sort=document.getElementById('last_action_sort');
+            Sort=Sort.value;
+
+
+            if(Sort!="File"){ // 에러 
+
+                errorText.textContent="파일을 선택해 주세요"
+                uploadFilePopup.style.display = 'none';
+                errorPopup.style.display = 'block';
+                DelPopup.style.display = 'none';
+                Mkdirpopup.style.display='none';
+                Pre_popup.style.display='none';
+                
+                document.querySelector(".background").className = "background show";
+            }
+            else{
+                const Dir=document.getElementById('last_action_link');
+                const savepath = Dir.value;
+
+
+                file_path='./static' + savepath  // 기본위치 + 디렉토리
+
+                
+                downloadFile(file_path)
+            }
+        });
+ 
+
+        async function downloadFile(filePath) { // 다운로드 함수
+            startRotation()
+
+            try {
+                const response = await fetch(`/download_file?file_path=${encodeURIComponent(filePath)}`);
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+
+                const blob = await response.blob();
+
+                // 파일 다운로드를 위해 a 태그 생성 및 클릭
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = filePath.split("/").pop(); // 파일 이름으로 설정
+                a.click();
+            } catch (error) {
+                console.error("Error downloading the file:", error);
+            }
+
+            stopRotation()
+        }
+
+
+        PreviewButton.addEventListener('click', async () => {
+            
+            const Dir=document.getElementById('last_action_link');
+            const savepath = Dir.value;
+
+
+            const alldir = savepath.split('/');
+            const fileName = alldir.pop(); // 이름
+            const sort=fileName.split('.')[1]
+
+            console.log(sort)
+
+
+            if(image_format_List.includes(sort)){
+                uploadFilePopup.style.display = 'none';
+                errorPopup.style.display = 'none';
+                DelPopup.style.display = 'none';
+                Mkdirpopup.style.display='none';
+                Pre_popup.style.display='block';
+
+                imageElement.src = './static'+savepath;
+
+                document.querySelector(".background").className = "background show";
+            }
+            else{
+                
+                console.log("사진만");
+            }
+        });
+
+        RemoveButton.addEventListener('click', async () => { // 삭제 팝업
+            // 팝업창으로 물어보고 ㅇㅇ
+            const Dir=document.getElementById('last_action_link');
+            const savepath = Dir.value;
+
+            const text=document.getElementById('DelName');
+            text.textContent=savepath
+
+
+
+            if(savepath == 'root'){ // 루트파일은 삭제 x 에러 ㄱㄱ
+
+                errorText.textContent="루트 파일은 삭제하지 못합니다."
+                uploadFilePopup.style.display = 'none';
+                errorPopup.style.display = 'block';
+                DelPopup.style.display = 'none';
+                Mkdirpopup.style.display='none';
+                Pre_popup.style.display='none';
+                
+                
+            }
+            else if(savepath == ''){
+                errorText.textContent="파일을 선택해주세요"
+                uploadFilePopup.style.display = 'none';
+                errorPopup.style.display = 'block';
+                DelPopup.style.display = 'none';
+                Mkdirpopup.style.display='none'
+                Pre_popup.style.display='none';
+                
+            }
+            else{
+                uploadFilePopup.style.display = 'none';
+                errorPopup.style.display = 'none';
+                DelPopup.style.display = 'block';
+                Mkdirpopup.style.display='none';
+                Pre_popup.style.display='none';
+                
+                
+            }
+
+            document.querySelector(".background").className = "background show";
+        });
+
+        Del_yes.addEventListener('click', async () => { // 삭제 실행버튼
+
+
+            startRotation()
+            const Dir=document.getElementById('last_action_link');
+            const savepath = Dir.value;
+
+
+            file_path='./static' + savepath  // 기본위치 + 디렉토리
+
+            await fetch(`/dir/Del?file_path=${encodeURIComponent(file_path)}`, {method: "POST"});
+            
+            stopRotation()
+            location.reload(); // 리로드
+
+        })
+    </script>
+
+
+
+<script> // 로딩
+    // 중지 함수 정의
+    function stopRotation() {
+        const buttons = document.querySelectorAll('button');
+
+        const rectangles = document.querySelectorAll('.rectangle');
+
+        rectangles.forEach(rectangle => {
+            rectangle.style.animation = 'none'; // 각각의 'rectangle'에 대해 애니메이션을 중지합니다.
+            rectangle.style.visibility = 'hidden';
+        });
+
+        buttons.forEach(button => {
+            button.disabled = false;
+        });
+    }
+
+    function startRotation() {
+        const buttons = document.querySelectorAll('button');
+        const rectangles = document.querySelectorAll('.rectangle');
+
+        rectangles.forEach(rectangle => {
+            rectangle.style.animation = 'rotate 2s linear infinite'; // 애니메이션을 다시 시작합니다.
+            rectangle.style.visibility = 'visible';
+        });
+       
+        buttons.forEach(button => {
+            button.disabled = true;
+        });
+    }
+</script>
+    
+
+
+
+<!-- 
+여기부터 스크립트 --------------------------------------------------------------------------------------------------
+여기부터 스크립트 --------------------------------------------------------------------------------------------------
+여기부터 스크립트 --------------------------------------------------------------------------------------------------
+
+ -->
+    <script>
+
+    zip_format_List= ['zip','ZIP']
+    
+
+        'use strict';
+      
+      window.addEventListener('load', async () => {/*로드시 현재 사용자 공유폴더 디렉토리 생성!*/
+        
+       
+        //<ul role="group" id="/keti"></ul>
+
+        const ShareFolder=document.getElementById('ShareFolder');
+        ShareFolder.textContent="ShareFolder"
+
+        const rootLiElement = document.getElementById('rootLi');
+
+
+        
+
+        // Create a new <ul> element
+        const ulElement = document.createElement('ul');
+        ulElement.setAttribute('role', 'group');
+        ulElement.setAttribute('id', '/ShareFolder');
+        
+        // Append the <ul> element as a child of the root <li> element
+        rootLiElement.appendChild(ulElement);
+        
+        const refreshResponse = await fetch(`/dir/Check`, {
+          method: 'POST',
+          }).then(function(response) {
+              if (!response.ok) {
+                  throw new Error('Network response was not ok');
+              }
+              return response.json();
+          }).then(function(data) {
+
+            let dirs=data[0]
+            const Filelists=data[1]
+            
+
+
+            for (const dir of dirs) { // 디렉토리 추가부분 ----------------------------------------------------------
+              let tempdir=""
+              
+              let baseroot = document.getElementById('root'); // 맨 위 루트
+              
+              for (const dirname of dir.split('/').slice(1)){
+                tempdir=String(tempdir)+'/'+String(dirname)
+
+                let finddir = document.getElementById(tempdir);
+
+                if(finddir==null){ // 요소 추가 
+                    const newLi = document.createElement('li');
+                    newLi.setAttribute('role', 'treeitem');
+                    newLi.setAttribute('aria-expanded', 'false');
+                    newLi.setAttribute('aria-selected', 'false');
+                    newLi.setAttribute('tabindex', '-1');
+                    newLi.setAttribute('aria-label', tempdir +",Dir");
+                    
+
+                    // 새로운 <span> 요소 생성
+                    const newSpan = document.createElement('span');
+                    newSpan.textContent = dirname;
+                    
+
+                    // 새로운 <ul> 요소 생성
+                    const newUl = document.createElement('ul');
+                    newUl.setAttribute('role', 'group');
+                    newUl.id=tempdir;
+                    newLi.addEventListener('click', handleTreeItemClick);
+
+
+                    // <span>과 <ul>을 <li> 아래에 추가
+                    newLi.appendChild(newSpan);
+                    newLi.appendChild(newUl);
+
+                    // 기존 요소를 새로운 <li> 요소로 대체
+                    
+                    baseroot.appendChild(newLi);
+                  
+                }
+                else{
+                  baseroot = finddir;
+                }
+              }
+            }
+
+           
+            for (const file of Filelists) {// 파일 추가부분 ----------------------------------------------------------
+                const alldir = file.split('/');
+                const fileName = alldir.pop(); // 이름
+                const directory = alldir.join('/');   // 경로
+
+                const sort=fileName.split('.')[1]
+                let findDir = document.getElementById(directory);
+
+
+                const newLi = document.createElement('li');
+                newLi.setAttribute('role', 'treeitem');
+                newLi.setAttribute('aria-selected', 'false');
+
+                if(image_format_List.includes(sort)){
+                    newLi.setAttribute('class', 'img');
+                }
+                else if(video_format_List.includes(sort)){
+                    newLi.setAttribute('class', 'vid');
+                }
+                else if(zip_format_List.includes(sort)){
+                    newLi.setAttribute('class', 'zip');
+                }
+                else{
+                    newLi.setAttribute('class', 'doc');
+                }
+
+                
+                newLi.setAttribute('tabindex', '-1');
+                newLi.textContent=fileName
+                newLi.setAttribute('aria-label', file+",File");
+                newLi.addEventListener('click', handleTreeItemClick);
+
+
+
+                findDir.appendChild(newLi);
+
+            }
+        });
+
+
+
+        var trees = document.querySelectorAll('[role="tree"]');
+
+        for (var i = 0; i < trees.length; i++) {
+              var t = new Tree(trees[i]);
+              t.init();
+        }
+    });
+
+
+
+    async function handleTreeItemClick(event) { // select시 텍스트 표시
+        const treeitem = event.currentTarget;
+        const label = treeitem.getAttribute('aria-label') || treeitem.textContent.trim();
+        
+        document.getElementById('last_action_sort').value = label.trim().split(",")[1];
+        document.getElementById('last_action_link').value = label.trim().split(",")[0];
+
+
+        if(label.trim().split(",")[1]=="Dir"){
+            let AllCount=0
+
+            const refreshResponse = await fetch(`/dir/Count?directory=${encodeURIComponent(document.getElementById('last_action_link').value)}`, {
+            method: 'POST',})
+
+            const data = await refreshResponse.json();
+            AllCount=data.jpg_count
+            
+
+            document.getElementById('last_action_data_Count').value=AllCount+"개"
+        }
+
+        else{
+            
+            document.getElementById('last_action_data_Count').value="--"
+        }
+        event.stopPropagation();
+        event.preventDefault();
+    }
+
+
+      var Tree = function (node) {
+        // Check whether node is a DOM element
+        if (typeof node !== 'object') {
+            return;
+        }
+
+        this.domNode = node;
+
+        this.treeitems = [];
+        this.firstChars = [];
+
+        this.firstTreeitem = null;
+        this.lastTreeitem = null;
+        this.selectedItem = null;
+      };
+
+      Tree.prototype.init = function () {
+      function findTreeitems(node, tree, group) {
+          var elem = node.firstElementChild;
+          var ti = group;
+
+          while (elem) {
+          if (elem.tagName.toLowerCase() === 'li') {
+              ti = new Treeitem(elem, tree, group);
+              ti.init();
+              tree.treeitems.push(ti);
+              tree.firstChars.push(ti.label.substring(0, 1).toLowerCase());
+          }
+
+          if (elem.firstElementChild) {
+              findTreeitems(elem, tree, ti);
+          }
+
+          elem = elem.nextElementSibling;
+          }
+      }
+
+
+      // initialize pop up menus
+      if (!this.domNode.getAttribute('role')) {
+          this.domNode.setAttribute('role', 'tree');
+      }
+
+      findTreeitems(this.domNode, this, false);
+
+      this.updateVisibleTreeitems();
+
+      this.firstTreeitem.domNode.tabIndex = 0;
+      };
+
+      Tree.prototype.setSelectedToItem = function (treeitem) {
+      if (this.selectedItem) {
+          this.selectedItem.domNode.setAttribute('aria-selected', 'false');
+      }
+      treeitem.domNode.setAttribute('aria-selected', 'true');
+      this.selectedItem = treeitem;
+      };
+
+      Tree.prototype.setFocusToItem = function (treeitem) {
+      for (var i = 0; i < this.treeitems.length; i++) {
+          var ti = this.treeitems[i];
+
+          if (ti === treeitem) {
+          ti.domNode.tabIndex = 0;
+          ti.domNode.focus();
+          } else {
+          ti.domNode.tabIndex = -1;
+          }
+      }
+      };
+
+      Tree.prototype.setFocusToNextItem = function (currentItem) {
+      var nextItem = false;
+
+      for (var i = this.treeitems.length - 1; i >= 0; i--) {
+          var ti = this.treeitems[i];
+          if (ti === currentItem) {
+          break;
+          }
+          if (ti.isVisible) {
+          nextItem = ti;
+          }
+      }
+
+      if (nextItem) {
+          this.setFocusToItem(nextItem);
+      }
+      };
+
+      Tree.prototype.setFocusToPreviousItem = function (currentItem) {
+      var prevItem = false;
+
+      for (var i = 0; i < this.treeitems.length; i++) {
+          var ti = this.treeitems[i];
+          if (ti === currentItem) {
+          break;
+          }
+          if (ti.isVisible) {
+          prevItem = ti;
+          }
+      }
+
+      if (prevItem) {
+          this.setFocusToItem(prevItem);
+      }
+      };
+
+      Tree.prototype.setFocusToParentItem = function (currentItem) {
+      if (currentItem.groupTreeitem) {
+          this.setFocusToItem(currentItem.groupTreeitem);
+      }
+      };
+
+      Tree.prototype.setFocusToFirstItem = function () {
+      this.setFocusToItem(this.firstTreeitem);
+      };
+
+      Tree.prototype.setFocusToLastItem = function () {
+      this.setFocusToItem(this.lastTreeitem);
+      };
+
+      Tree.prototype.expandTreeitem = function (currentItem) {
+      if (currentItem.isExpandable) {
+          currentItem.domNode.setAttribute('aria-expanded', true);
+          this.updateVisibleTreeitems();
+      }
+      };
+
+      Tree.prototype.expandAllSiblingItems = function (currentItem) {
+      for (var i = 0; i < this.treeitems.length; i++) {
+          var ti = this.treeitems[i];
+
+          if (ti.groupTreeitem === currentItem.groupTreeitem && ti.isExpandable) {
+          this.expandTreeitem(ti);
+          }
+      }
+      };
+
+      Tree.prototype.collapseTreeitem = function (currentItem) {
+      var groupTreeitem = false;
+
+      if (currentItem.isExpanded()) {
+          groupTreeitem = currentItem;
+      } else {
+          groupTreeitem = currentItem.groupTreeitem;
+      }
+
+      if (groupTreeitem) {
+          groupTreeitem.domNode.setAttribute('aria-expanded', false);
+          this.updateVisibleTreeitems();
+          this.setFocusToItem(groupTreeitem);
+      }
+      };
+
+      Tree.prototype.updateVisibleTreeitems = function () {
+      this.firstTreeitem = this.treeitems[0];
+
+      for (var i = 0; i < this.treeitems.length; i++) {
+          var ti = this.treeitems[i];
+
+          var parent = ti.domNode.parentNode;
+
+          ti.isVisible = true;
+
+          while (parent && parent !== this.domNode) {
+          if (parent.getAttribute('aria-expanded') == 'false') {
+              ti.isVisible = false;
+          }
+          parent = parent.parentNode;
+          }
+
+          if (ti.isVisible) {
+          this.lastTreeitem = ti;
+          }
+      }
+      };
+
+      Tree.prototype.setFocusByFirstCharacter = function (currentItem, char) {
+      var start, index;
+
+      char = char.toLowerCase();
+
+      // Get start index for search based on position of currentItem
+      start = this.treeitems.indexOf(currentItem) + 1;
+      if (start === this.treeitems.length) {
+          start = 0;
+      }
+
+      // Check remaining slots in the menu
+      index = this.getIndexFirstChars(start, char);
+
+      // If not found in remaining slots, check from beginning
+      if (index === -1) {
+          index = this.getIndexFirstChars(0, char);
+      }
+
+      // If match was found...
+      if (index > -1) {
+          this.setFocusToItem(this.treeitems[index]);
+      }
+      };
+
+      Tree.prototype.getIndexFirstChars = function (startIndex, char) {
+      for (var i = startIndex; i < this.firstChars.length; i++) {
+          if (this.treeitems[i].isVisible) {
+          if (char === this.firstChars[i]) {
+              return i;
+          }
+          }
+      }
+      return -1;
+      };
+      /*
+      *   This content is licensed according to the W3C Software License at
+      *   https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document
+      *
+      *   File:   Treeitem.js
+      *
+      *   Desc:   Treeitem widget that implements ARIA Authoring Practices
+      *           for a tree being used as a file viewer
+      */
+
+      'use strict';
+
+      /*
+      *   @constructor
+      *
+      *   @desc
+      *       Treeitem object for representing the state and user interactions for a
+      *       treeItem widget
+      *
+      *   @param node
+      *       An element with the role=tree attribute
+      */
+
+      var Treeitem = function (node, treeObj, group) {
+      // Check whether node is a DOM element
+      if (typeof node !== 'object') {
+          return;
+      }
+
+      node.tabIndex = -1;
+      this.tree = treeObj;
+      this.groupTreeitem = group;
+      this.domNode = node;
+      this.label = node.textContent.trim();
+
+      if (node.getAttribute('aria-label')) {
+          this.label = node.getAttribute('aria-label').trim();
+      }
+
+      this.isExpandable = false;
+      this.isVisible = false;
+      this.inGroup = false;
+
+      if (group) {
+          this.inGroup = true;
+      }
+
+      var elem = node.firstElementChild;
+
+      while (elem) {
+          if (elem.tagName.toLowerCase() == 'ul') {
+          elem.setAttribute('role', 'group');
+          this.isExpandable = true;
+          break;
+          }
+
+          elem = elem.nextElementSibling;
+      }
+
+      this.keyCode = Object.freeze({
+          RETURN: 13,
+          SPACE: 32,
+          PAGEUP: 33,
+          PAGEDOWN: 34,
+          END: 35,
+          HOME: 36,
+          LEFT: 37,
+          UP: 38,
+          RIGHT: 39,
+          DOWN: 40,
+      });
+      };
+
+      Treeitem.prototype.init = function () {
+      this.domNode.tabIndex = -1;
+
+      if (!this.domNode.getAttribute('role')) {
+          this.domNode.setAttribute('role', 'treeitem');
+      }
+
+      this.domNode.addEventListener('keydown', this.handleKeydown.bind(this));
+      this.domNode.addEventListener('click', this.handleClick.bind(this));
+      this.domNode.addEventListener('focus', this.handleFocus.bind(this));
+      this.domNode.addEventListener('blur', this.handleBlur.bind(this));
+
+      if (!this.isExpandable) {
+          this.domNode.addEventListener('mouseover', this.handleMouseOver.bind(this));
+          this.domNode.addEventListener('mouseout', this.handleMouseOut.bind(this));
+      }
+      };
+
+      Treeitem.prototype.isExpanded = function () {
+      if (this.isExpandable) {
+          return this.domNode.getAttribute('aria-expanded') === 'true';
+      }
+
+      return false;
+      };
+
+      /* EVENT HANDLERS */
+
+      Treeitem.prototype.handleKeydown = function (event) {
+      var flag = false,
+          char = event.key;
+
+
+      function isPrintableCharacter(str) {
+          return str.length === 1 && str.match(/\S/);
+      }
+
+
+      function printableCharacter(item) {
+          if (char == '*') {
+          item.tree.expandAllSiblingItems(item);
+          flag = true;
+          } else {
+          if (isPrintableCharacter(char)) {
+              item.tree.setFocusByFirstCharacter(item, char);
+              flag = true;
+          }
+          }
+      }
+
+      if (event.altKey || event.ctrlKey || event.metaKey) {
+          return;
+      }
+
+      if (event.shift) {
+          if (isPrintableCharacter(char)) {
+          printableCharacter(this);
+          }
+      } else {
+          switch (event.keyCode) {
+          case this.keyCode.RETURN:
+          case this.keyCode.SPACE:
+              var treeitem = event.currentTarget;
+              var label = treeitem.getAttribute('aria-label');
+              if (!label) {
+              var child = treeitem.firstElementChild;
+              label = child ? child.innerText : treeitem.innerText;
+              }
+              document.getElementById('last_action').value = label.trim();
+
+              if (!this.isExpandable) this.tree.setFocusToItem(this);
+              this.tree.setSelectedToItem(this);
+              flag = true;
+              break;
+
+          case this.keyCode.UP:
+              this.tree.setFocusToPreviousItem(this);
+              flag = true;
+              break;
+
+          case this.keyCode.DOWN:
+              this.tree.setFocusToNextItem(this);
+              flag = true;
+              break;
+
+          case this.keyCode.RIGHT:
+              if (this.isExpandable) {
+              if (this.isExpanded()) {
+                  this.tree.setFocusToNextItem(this);
+              } else {
+                  this.tree.expandTreeitem(this);
+              }
+              }
+              flag = true;
+              break;
+
+          case this.keyCode.LEFT:
+              if (this.isExpandable && this.isExpanded()) {
+              this.tree.collapseTreeitem(this);
+              flag = true;
+              } else {
+              if (this.inGroup) {
+                  this.tree.setFocusToParentItem(this);
+                  flag = true;
+              }
+              }
+              break;
+
+          case this.keyCode.HOME:
+              this.tree.setFocusToFirstItem();
+              flag = true;
+              break;
+
+          case this.keyCode.END:
+              this.tree.setFocusToLastItem();
+              flag = true;
+              break;
+
+          default:
+              if (isPrintableCharacter(char)) {
+              printableCharacter(this);
+              }
+              break;
+          }
+      }
+
+      if (flag) {
+          event.stopPropagation();
+          event.preventDefault();
+      }
+      };
+
+      Treeitem.prototype.handleClick = function (event) {
+      if (this.isExpandable) {
+          if (this.isExpanded()) {
+          this.tree.collapseTreeitem(this);
+          } else {
+          this.tree.expandTreeitem(this);
+          }
+          event.stopPropagation();
+      } else {
+          this.tree.setFocusToItem(this);
+      }
+      this.tree.setSelectedToItem(this);
+      };
+
+      Treeitem.prototype.handleFocus = function () {
+      var node = this.domNode;
+      if (this.isExpandable) {
+          node = node.firstElementChild;
+      }
+      node.classList.add('focus');
+      };
+
+      Treeitem.prototype.handleBlur = function () {
+      var node = this.domNode;
+      if (this.isExpandable) {
+          node = node.firstElementChild;
+      }
+      node.classList.remove('focus');
+      };
+
+      Treeitem.prototype.handleMouseOver = function (event) {
+      event.currentTarget.classList.add('hover');
+      };
+
+      Treeitem.prototype.handleMouseOut = function (event) {
+      event.currentTarget.classList.remove('hover');
+      };
+      /*
+      *   This content is licensed according to the W3C Software License at
+      *   https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document
+      *
+      *   File:   Treeitem.js
+      *
+      *   Desc:   Setup click events for Tree widget examples
+      */
+
+      'use strict';
+
+      /**
+       * ARIA Treeview example
+       *
+       * @function onload
+       * @description  after page has loaded initialize all treeitems based on the role=treeitem
+       */
+
+
+       async function function_add(){
+            const refreshResponse = await fetch(`/dir/Count?directory=${encodeURIComponent('/ShareFolder')}`, {
+            method: 'POST',})
+
+            const data = await refreshResponse.json();
+            AllCount=data.jpg_count
+            
+
+
+            document.getElementById('last_action_data_Count').value = AllCount+"개"
+        }
+
+
+      // 클릭시 텍스트 최신화 및 유지
+      window.addEventListener('load', function () {
+        var treeitems = document.querySelectorAll('[role="treeitem"]');
+
+        for (var i = 0; i < treeitems.length; i++) {
+            treeitems[i].addEventListener('click', function (event) {
+            var treeitem = event.currentTarget;
+            var label = treeitem.getAttribute('aria-label');
+            if (!label) {
+                var child = treeitem.firstElementChild;
+                label = child ? child.innerText : treeitem.innerText;
+            }
+            
+           
+            document.getElementById('last_action_link').value = label.trim().split(",")[0];
+            document.getElementById('last_action_sort').value = label.trim().split(",")[1];
+
+            function_add()
+            
+            event.stopPropagation();
+            event.preventDefault();
+            });
+          }
+        });
+
+    </script>
+
+  </body>
+
+</html>
