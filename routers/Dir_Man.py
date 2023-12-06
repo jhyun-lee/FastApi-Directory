@@ -24,13 +24,10 @@ import zipfile
 PROCESS_SUSPEND_RESUME = 0x0800
 
 
-from ultralytics import YOLO
-from fastapi import File,UploadFile
+
 from pathlib import Path
 import shutil
-from database import engineconn
 
-engine = engineconn()  # 데이터 베이스 시작
 router = APIRouter()
 app = FastAPI()
 
